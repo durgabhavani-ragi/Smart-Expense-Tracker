@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile — Smart Expense Tracker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="profile">
+  <div id="app-shell" class="dashboard"></div>
+
+  <div id="page-content" hidden>
+    <div class="profile-layout">
+      <section class="card profile-sidebar">
+        <div class="avatar-lg" id="profile-avatar"><i class="fa-solid fa-user"></i></div>
+        <h3 id="profile-display-name">User</h3>
+        <p style="color:var(--text-muted);font-size:0.9rem" id="profile-display-email"></p>
+        <label class="btn btn-secondary avatar-upload">
+          <i class="fa-solid fa-camera"></i> Change Photo
+          <input type="file" id="avatar-input" accept="image/*" />
+        </label>
+      </section>
+
+      <div>
+        <section class="card">
+          <div class="card-header"><h2><i class="fa-solid fa-user-pen"></i> Edit Profile</h2></div>
+          <div id="profile-alert"></div>
+          <form id="profile-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="profile-name">Full Name</label>
+                <input type="text" id="profile-name" required />
+              </div>
+              <div class="form-group">
+                <label for="profile-phone">Phone</label>
+                <input type="tel" id="profile-phone" placeholder="+91..." />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="profile-email">Email</label>
+              <input type="email" id="profile-email" disabled />
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Save Profile</button>
+          </form>
+        </section>
+
+        <section class="card" style="margin-top:1.25rem">
+          <div class="card-header"><h2><i class="fa-solid fa-key"></i> Change Password</h2></div>
+          <div id="password-alert"></div>
+          <form id="password-form">
+            <div class="form-group">
+              <label for="current-password">Current Password</label>
+              <input type="password" id="current-password" required />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="new-password">New Password</label>
+                <input type="password" id="new-password" minlength="6" required />
+              </div>
+              <div class="form-group">
+                <label for="confirm-new-password">Confirm Password</label>
+                <input type="password" id="confirm-new-password" required />
+              </div>
+            </div>
+            <button type="submit" class="btn btn-secondary"><i class="fa-solid fa-lock"></i> Update Password</button>
+          </form>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/profile.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      setTimeout(() => {
+        const u = getCurrentUser();
+        const n = document.getElementById("profile-display-name");
+        const e = document.getElementById("profile-display-email");
+        if (n) n.textContent = u?.name || "User";
+        if (e) e.textContent = u?.email || "";
+      }, 50);
+    });
+  </script>
+</body>
+</html>

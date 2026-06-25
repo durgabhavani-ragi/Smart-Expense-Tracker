@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Smart Expense Tracker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="dashboard">
+  <div id="app-shell" class="dashboard"></div>
+
+  <div id="page-content" hidden>
+    <section class="cards-grid">
+      <article class="summary-card income">
+        <div class="icon-badge"><i class="fa-solid fa-arrow-trend-up"></i></div>
+        <p class="label">Total Income</p>
+        <p class="value" id="total-income">₹0.00</p>
+      </article>
+      <article class="summary-card expense">
+        <div class="icon-badge"><i class="fa-solid fa-arrow-trend-down"></i></div>
+        <p class="label">Total Expense</p>
+        <p class="value" id="total-expense">₹0.00</p>
+      </article>
+      <article class="summary-card balance">
+        <div class="icon-badge"><i class="fa-solid fa-scale-balanced"></i></div>
+        <p class="label">Balance</p>
+        <p class="value" id="balance">₹0.00</p>
+      </article>
+      <article class="stat-card expense">
+        <div class="icon-wrap"><i class="fa-solid fa-calendar-day"></i></div>
+        <p class="label">This Month</p>
+        <p class="value" id="monthly-spent">₹0.00</p>
+        <p class="change down" id="budget-used-pct">No budget set</p>
+      </article>
+      <article class="stat-card purple">
+        <div class="icon-wrap"><i class="fa-solid fa-tags"></i></div>
+        <p class="label">Top Category</p>
+        <p class="value" id="top-category">—</p>
+        <p class="change" id="top-category-amount">₹0.00</p>
+      </article>
+      <article class="stat-card balance">
+        <div class="icon-wrap"><i class="fa-solid fa-piggy-bank"></i></div>
+        <p class="label">Savings (Month)</p>
+        <p class="value" id="savings-amount">₹0.00</p>
+        <p class="change" id="savings-goal-text">Set a goal in Budget</p>
+      </article>
+    </section>
+
+    <div class="grid-2">
+      <section class="card">
+        <div class="card-header">
+          <h2><i class="fa-solid fa-chart-line"></i> Monthly Summary</h2>
+        </div>
+        <p class="change" style="margin-bottom:0.75rem">Income: <strong id="monthly-income">₹0</strong> · Net: <strong id="net-month">₹0</strong></p>
+        <div class="progress-block">
+          <div class="progress-label"><span>Budget usage</span><span id="budget-used-pct-label"></span></div>
+          <div class="progress-bar"><div class="progress-fill" id="budget-progress" style="width:0%"></div></div>
+        </div>
+        <div class="progress-block" style="margin-top:1rem">
+          <div class="progress-label"><span>Savings progress</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="savings-progress" style="width:0%"></div></div>
+        </div>
+        <div id="budget-alerts-mini" style="margin-top:1rem"></div>
+      </section>
+
+      <section class="card chart-card">
+        <div class="card-header"><h2><i class="fa-solid fa-chart-pie"></i> Categories</h2></div>
+        <div class="chart-wrap"><canvas id="chart-category-mini"></canvas></div>
+      </section>
+    </div>
+
+    <div class="grid-2">
+      <section class="card">
+        <div class="card-header">
+          <h2><i class="fa-solid fa-clock-rotate-left"></i> Recent Transactions</h2>
+          <a href="transactions.html">View all</a>
+        </div>
+        <ul class="tx-list" id="recent-transactions"></ul>
+      </section>
+
+      <section class="card chart-card">
+        <div class="card-header"><h2><i class="fa-solid fa-calendar-week"></i> Weekly Spending</h2></div>
+        <div class="chart-wrap"><canvas id="chart-weekly-mini"></canvas></div>
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="card-header"><h2><i class="fa-solid fa-bolt"></i> Recent Activity</h2></div>
+      <ul class="timeline" id="activity-timeline"></ul>
+    </section>
+
+    <section class="section" id="add-transactions">
+      <div class="section-header"><h2><i class="fa-solid fa-plus-circle"></i> Quick Add</h2></div>
+      <div class="forms-row">
+        <div class="form-card expense-form">
+          <h3><i class="fa-solid fa-minus-circle"></i> Add Expense</h3>
+          <div id="expense-alert"></div>
+          <form id="expense-form" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="expense-amount">Amount</label>
+                <input type="number" id="expense-amount" min="0.01" step="0.01" placeholder="0.00" required />
+              </div>
+              <div class="form-group">
+                <label for="expense-category">Category</label>
+                <select id="expense-category" required></select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="expense-date">Date</label>
+                <input type="date" id="expense-date" required />
+              </div>
+              <div class="form-group">
+                <label for="expense-description">Description</label>
+                <input type="text" id="expense-description" placeholder="What was this for?" />
+              </div>
+            </div>
+            <button type="submit" class="btn btn-expense"><i class="fa-solid fa-plus"></i> Add Expense</button>
+          </form>
+        </div>
+        <div class="form-card income-form">
+          <h3><i class="fa-solid fa-plus-circle"></i> Add Income</h3>
+          <div id="income-alert"></div>
+          <form id="income-form" novalidate>
+            <div class="form-group">
+              <label for="income-amount">Amount</label>
+              <input type="number" id="income-amount" min="0.01" step="0.01" placeholder="0.00" required />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="income-date">Date</label>
+                <input type="date" id="income-date" required />
+              </div>
+              <div class="form-group">
+                <label for="income-description">Description</label>
+                <input type="text" id="income-description" placeholder="Salary, freelance, etc." />
+              </div>
+            </div>
+            <button type="submit" class="btn btn-income"><i class="fa-solid fa-plus"></i> Add Income</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

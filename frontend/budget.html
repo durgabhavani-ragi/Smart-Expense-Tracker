@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Budget — Smart Expense Tracker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="budget">
+  <div id="app-shell" class="dashboard"></div>
+
+  <div id="page-content" hidden>
+    <div id="budget-alerts" class="budget-alerts"></div>
+
+    <form id="budget-form">
+      <div class="grid-2">
+        <section class="card">
+          <div class="card-header"><h2><i class="fa-solid fa-calendar"></i> Monthly Budget</h2></div>
+          <div class="form-group">
+            <label for="monthly-budget">Total monthly limit</label>
+            <input type="number" id="monthly-budget" min="0" step="100" placeholder="e.g. 50000" />
+          </div>
+          <div class="progress-block">
+            <div class="progress-label">
+              <span>Spent <strong id="monthly-budget-spent">₹0</strong></span>
+              <span>of <strong id="monthly-budget-total">₹0</strong></span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="monthly-budget-progress" style="width:0%"></div></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-header"><h2><i class="fa-solid fa-piggy-bank"></i> Savings Goal</h2></div>
+          <div class="form-group">
+            <label for="savings-goal">Monthly savings target</label>
+            <input type="number" id="savings-goal" min="0" step="500" placeholder="e.g. 10000" />
+          </div>
+          <div class="progress-block">
+            <div class="progress-label">
+              <span>Saved <strong id="savings-current">₹0</strong></span>
+              <span>Goal <strong id="savings-goal-display">₹0</strong></span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="savings-goal-progress" style="width:0%"></div></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="card" style="margin-top:1.25rem">
+        <div class="card-header"><h2><i class="fa-solid fa-tags"></i> Category Budgets</h2></div>
+        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem">Set limits per category. Alerts appear at 80% and when exceeded.</p>
+        <div class="category-budget-grid" id="category-budget-grid"></div>
+      </section>
+
+      <button type="submit" class="btn btn-primary" style="margin-top:1.25rem"><i class="fa-solid fa-floppy-disk"></i> Save Budget</button>
+    </form>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/budget.js"></script>
+</body>
+</html>

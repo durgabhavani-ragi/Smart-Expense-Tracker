@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings — Smart Expense Tracker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="settings">
+  <div id="app-shell" class="dashboard"></div>
+
+  <div id="page-content" hidden>
+    <form id="settings-form">
+      <section class="card">
+        <div class="card-header"><h2><i class="fa-solid fa-palette"></i> Appearance</h2></div>
+        <div class="settings-list">
+          <div class="setting-row">
+            <div class="setting-info">
+              <h4>Dark Mode</h4>
+              <p>Switch between light and dark themes</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="setting-dark-mode" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header"><h2><i class="fa-solid fa-coins"></i> Regional</h2></div>
+        <div class="settings-list">
+          <div class="setting-row">
+            <div class="setting-info">
+              <h4>Currency</h4>
+              <p>Display amounts in your preferred currency</p>
+            </div>
+            <select id="setting-currency" style="padding:0.5rem 0.75rem;border-radius:8px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text)"></select>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header"><h2><i class="fa-solid fa-bell"></i> Notifications</h2></div>
+        <div class="settings-list">
+          <div class="setting-row">
+            <div class="setting-info">
+              <h4>Email Notifications</h4>
+              <p>Receive updates about your account</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="notif-email" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <h4>Budget Alerts</h4>
+              <p>Warn when approaching or exceeding budgets</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="notif-budget" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <h4>Weekly Report</h4>
+              <p>Summary of your weekly spending</p>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="notif-weekly" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Settings</button>
+    </form>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/settings.js"></script>
+</body>
+</html>

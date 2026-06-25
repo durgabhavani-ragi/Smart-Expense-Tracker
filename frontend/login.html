@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Smart Expense Tracker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="js/auth.js"></script>
+  <script src="js/data.js"></script>
+</head>
+<body class="auth-page" data-page="login">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="icon"><i class="fa-solid fa-coins"></i></div>
+      <h1>Smart Expense Tracker</h1>
+      <p>Sign in to your fintech dashboard</p>
+    </div>
+
+    <div id="auth-alert"></div>
+
+    <form id="login-form" novalidate>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <div class="input-icon-wrap">
+          <i class="fa-solid fa-envelope"></i>
+          <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-icon-wrap">
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required />
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
+    </form>
+
+    <p class="auth-footer">
+      Don't have an account? <a href="signup.html">Create one</a>
+    </p>
+
+    <div class="auth-features">
+      <span><i class="fa-solid fa-chart-pie"></i> Analytics</span>
+      <span><i class="fa-solid fa-shield-halved"></i> Secure</span>
+      <span><i class="fa-solid fa-wallet"></i> Budgets</span>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typeof applyTheme === "function") applyTheme();
+      requireGuest();
+      document.getElementById("login-form").addEventListener("submit", handleLogin);
+    });
+  </script>
+</body>
+</html>

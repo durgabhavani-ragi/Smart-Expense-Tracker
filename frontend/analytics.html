@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics — Smart Expense Tracker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body data-page="analytics">
+  <div id="app-shell" class="dashboard"></div>
+
+  <div id="page-content" hidden>
+    <section class="cards-grid">
+      <article class="stat-card income">
+        <div class="icon-wrap"><i class="fa-solid fa-wallet"></i></div>
+        <p class="label">Monthly Income</p>
+        <p class="value" id="analytics-income">₹0</p>
+      </article>
+      <article class="stat-card expense">
+        <div class="icon-wrap"><i class="fa-solid fa-credit-card"></i></div>
+        <p class="label">Monthly Expense</p>
+        <p class="value" id="analytics-expense">₹0</p>
+      </article>
+      <article class="stat-card balance">
+        <div class="icon-wrap"><i class="fa-solid fa-chart-line"></i></div>
+        <p class="label">Net Savings</p>
+        <p class="value" id="analytics-net">₹0</p>
+      </article>
+      <article class="stat-card warning">
+        <div class="icon-wrap"><i class="fa-solid fa-fire"></i></div>
+        <p class="label">Top Spending</p>
+        <p class="value" style="font-size:1rem" id="analytics-top-cat">—</p>
+      </article>
+    </section>
+
+    <div class="grid-2">
+      <section class="card chart-card">
+        <div class="card-header">
+          <h2><i class="fa-solid fa-chart-pie"></i> Expense by Category</h2>
+          <select id="month-filter" class="filter-group select" aria-label="Filter month"></select>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-categories"></canvas></div>
+      </section>
+      <section class="card chart-card">
+        <div class="card-header"><h2><i class="fa-solid fa-chart-column"></i> Monthly Expenses</h2></div>
+        <div class="chart-wrap"><canvas id="chart-monthly"></canvas></div>
+      </section>
+    </div>
+
+    <div class="grid-2">
+      <section class="card chart-card">
+        <div class="card-header"><h2><i class="fa-solid fa-arrows-left-right"></i> Income vs Expense</h2></div>
+        <div class="chart-wrap"><canvas id="chart-income-expense"></canvas></div>
+      </section>
+      <section class="card chart-card">
+        <div class="card-header"><h2><i class="fa-solid fa-calendar-week"></i> Weekly Spending</h2></div>
+        <div class="chart-wrap"><canvas id="chart-weekly"></canvas></div>
+      </section>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/analytics.js"></script>
+</body>
+</html>
