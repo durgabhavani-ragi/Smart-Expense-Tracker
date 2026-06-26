@@ -2,6 +2,20 @@
  * Budget page — monthly & category budgets, alerts, savings goal
  */
 
+import {
+  EXPENSE_CATEGORIES,
+  getTransactions,
+  getBudget,
+  saveBudget,
+  getCurrentMonthKey,
+  getCategoryTotals,
+  getBudgetAlerts,
+  getSavingsProgress,
+  getMonthlyExpense,
+  formatCurrency,
+} from "./data.js";
+import { initApp, showToast } from "./app.js";
+
 function renderCategoryBudgetInputs() {
   const grid = document.getElementById("category-budget-grid");
   if (!grid) return;
@@ -89,8 +103,8 @@ function handleBudgetSave(e) {
   showToast("Budget saved successfully");
 }
 
-function initBudgetPage() {
-  initApp("budget", "Budget", { subtitle: "Plan spending and track savings goals" });
+async function initBudgetPage() {
+  await initApp("budget", "Budget", { subtitle: "Plan spending and track savings goals" });
 
   const budget = getBudget();
   document.getElementById("monthly-budget").value = budget.monthlyBudget || "";

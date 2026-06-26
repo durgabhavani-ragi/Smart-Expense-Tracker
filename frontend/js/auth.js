@@ -1,84 +1,129 @@
-const USERS_KEY = "smartExp_users";
-const SESSION_KEY = "smartExp_session";
+/**
+ * Authentication — JWT via backend REST API
+ */
 
-function getUsers() {
-  try {
-    return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
-  } catch {
-    return [];
+import { registerUser, loginUser, logoutUser } from "../apis/authApi.js";
+import { BASE_URL, TOKEN_KEY, getAuthHeaders } from "../apis/apiConfig.js";
+
+const USER_SESSION_KEY = "smartExp_user";
+let currentUser = null;
+
+export function setCurrentUser(user) {
+  currentUser = user || null;
+  if (user) {
+    sessionStorage.setItem(USER_SESSION_KEY, JSON.stringify(user));
+  } else {
+    sessionStorage.removeItem(USER_SESSION_KEY);
   }
 }
 
-function saveUsers(users) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
-function setSession(email) {
-  localStorage.setItem(SESSION_KEY, JSON.stringify({ email, loggedInAt: Date.now() }));
-}
-
-function getSession() {
+export function getCurrentUser() {
+  if (currentUser) return currentUser;
   try {
-    return JSON.parse(localStorage.getItem(SESSION_KEY));
+    const stored = sessionStorage.getItem(USER_SESSION_KEY);
+    currentUser = stored ? JSON.parse(stored) : null;
   } catch {
-    return null;
+    currentUser = null;
+  }
+  return currentUser;
+}
+
+export function updateCurrentUser(updates) {
+  const user = getCurrentUser();
+  if (!user) return false;
+  setCurrentUser({ ...user, ...updates });
+  return true;
+}
+
+export function getToken() {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export async function validateToken() {
+  const token = getToken();
+  if (!token) return false;
+
+  try {
+    const response = await fetch(`${BASE_URL}/expenses`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+
+    if (response.status === 401) {
+      localStorage.removeItem(TOKEN_KEY);
+      setCurrentUser(null);
+      return false;
+    }
+
+    return response.ok;
+  } catch {
+    return false;
   }
 }
 
-function clearSession() {
-  localStorage.removeItem(SESSION_KEY);
-}
-
-function requireGuest() {
-  if (getSession()?.email) {
+export function requireGuest() {
+  if (getToken()) {
     window.location.href = "dashboard.html";
   }
 }
 
-function requireAuth() {
-  if (!getSession()?.email) {
+export async function requireAuth() {
+  if (!getToken()) {
     window.location.href = "login.html";
+    return false;
   }
+
+  const valid = await validateToken();
+  if (!valid) {
+    window.location.href = "login.html";
+    return false;
+  }
+
+  return true;
 }
 
-function showAlert(containerId, message, type = "error") {
+export function showAlert(containerId, message, type = "error") {
   const el = document.getElementById(containerId);
   if (!el) return;
   el.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
 }
 
-function clearAlert(containerId) {
+export function clearAlert(containerId) {
   const el = document.getElementById(containerId);
   if (el) el.innerHTML = "";
 }
 
-function isValidEmail(email) {
+export function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function handleLogin(event) {
+export async function handleLogin(event) {
   event.preventDefault();
   clearAlert("auth-alert");
 
   const email = document.getElementById("email").value.trim().toLowerCase();
   const password = document.getElementById("password").value;
+  const submitBtn = event.target.querySelector('button[type="submit"]');
 
   if (!email || !password) {
     showAlert("auth-alert", "Please enter email and password.");
     return;
   }
 
-  const user = getUsers().find((u) => u.email === email && u.password === password);
-  if (!user) {
-    showAlert("auth-alert", "Invalid email or password.");
-    return;
-  }
+  if (submitBtn) submitBtn.disabled = true;
 
-  setSession(email);
-  window.location.href = "dashboard.html";
+  try {
+    const data = await loginUser({ email, password });
+    if (data.data) setCurrentUser(data.data);
+    window.location.href = "dashboard.html";
+  } catch (error) {
+    showAlert("auth-alert", error.message || "Login failed. Please try again.");
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
+  }
 }
 
-function handleSignup(event) {
+export async function handleSignup(event) {
   event.preventDefault();
   clearAlert("auth-alert");
 
@@ -86,6 +131,7 @@ function handleSignup(event) {
   const email = document.getElementById("email").value.trim().toLowerCase();
   const password = document.getElementById("password").value;
   const confirm = document.getElementById("confirm-password").value;
+  const submitBtn = event.target.querySelector('button[type="submit"]');
 
   if (!name || !email || !password || !confirm) {
     showAlert("auth-alert", "Please fill in all fields.");
@@ -107,19 +153,27 @@ function handleSignup(event) {
     return;
   }
 
-  const users = getUsers();
-  if (users.some((u) => u.email === email)) {
-    showAlert("auth-alert", "An account with this email already exists.");
-    return;
-  }
+  if (submitBtn) submitBtn.disabled = true;
 
-  users.push({ name, email, password, phone: "", avatar: null });
-  saveUsers(users);
-  setSession(email);
-  window.location.href = "dashboard.html";
+  try {
+    const data = await registerUser({ name, email, password });
+    const token = data.token || data.jwt || data.accessToken;
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+    if (data.data) setCurrentUser(data.data);
+    window.location.href = "dashboard.html";
+  } catch (error) {
+    showAlert("auth-alert", error.message || "Registration failed. Please try again.");
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
+  }
 }
 
-function handleLogout() {
-  clearSession();
+export async function handleLogout() {
+  try {
+    await logoutUser();
+  } catch {
+    localStorage.removeItem(TOKEN_KEY);
+  }
+  setCurrentUser(null);
   window.location.href = "login.html";
 }

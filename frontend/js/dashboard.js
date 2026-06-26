@@ -2,6 +2,27 @@
  * Dashboard page logic
  */
 
+import { getCurrentUser } from "./auth.js";
+import {
+  EXPENSE_CATEGORIES,
+  getTransactions,
+  getBudget,
+  getCurrentMonthKey,
+  getMonthlyExpense,
+  getMonthlyIncome,
+  getTopCategory,
+  getSavingsProgress,
+  getBudgetAlerts,
+  createExpense,
+  createIncome,
+  formatCurrency,
+  formatDate,
+  formatDateTime,
+  escapeHtml,
+} from "./data.js";
+import { initApp, showToast, showFormAlert, clearFormAlert } from "./app.js";
+import { createCategoryPieChart, createWeeklySpendingChart } from "./charts.js";
+
 function renderRecentTransactions(limit = 5) {
   const list = document.getElementById("recent-transactions");
   if (!list) return;
@@ -135,7 +156,7 @@ function renderBudgetAlertsMini() {
     .join("");
 }
 
-function handleAddExpense(event) {
+async function handleAddExpense(event) {
   event.preventDefault();
   clearFormAlert("expense-alert");
 
@@ -153,26 +174,19 @@ function handleAddExpense(event) {
     return;
   }
 
-  const list = getTransactions();
-  list.push({
-    id: generateId(),
-    type: "expense",
-    amount,
-    category,
-    date,
-    description,
-    createdAt: Date.now(),
-  });
-  saveTransactions(list);
-
-  event.target.reset();
-  setDefaultDates();
-  refreshDashboard();
-  showFormAlert("expense-alert", "Expense added successfully.", "success");
-  showToast("Expense recorded");
+  try {
+    await createExpense({ amount, category, date, description });
+    event.target.reset();
+    setDefaultDates();
+    refreshDashboard();
+    showFormAlert("expense-alert", "Expense added successfully.", "success");
+    showToast("Expense recorded");
+  } catch (error) {
+    showFormAlert("expense-alert", error.message || "Failed to add expense.");
+  }
 }
 
-function handleAddIncome(event) {
+async function handleAddIncome(event) {
   event.preventDefault();
   clearFormAlert("income-alert");
 
@@ -189,23 +203,16 @@ function handleAddIncome(event) {
     return;
   }
 
-  const list = getTransactions();
-  list.push({
-    id: generateId(),
-    type: "income",
-    amount,
-    category: "Income",
-    date,
-    description: description || "Income",
-    createdAt: Date.now(),
-  });
-  saveTransactions(list);
-
-  event.target.reset();
-  setDefaultDates();
-  refreshDashboard();
-  showFormAlert("income-alert", "Income added successfully.", "success");
-  showToast("Income recorded");
+  try {
+    await createIncome({ amount, date, description: description || "Income" });
+    event.target.reset();
+    setDefaultDates();
+    refreshDashboard();
+    showFormAlert("income-alert", "Income added successfully.", "success");
+    showToast("Income recorded");
+  } catch (error) {
+    showFormAlert("income-alert", error.message || "Failed to add income.");
+  }
 }
 
 function setDefaultDates() {
@@ -232,10 +239,10 @@ function refreshDashboard() {
   createWeeklySpendingChart("chart-weekly-mini", transactions);
 }
 
-function initDashboardPage() {
+async function initDashboardPage() {
   const user = getCurrentUser();
   const subtitle = `Here's your financial overview, ${user?.name?.split(" ")[0] || "there"}`;
-  initApp("dashboard", "Dashboard", { subtitle, showAddButton: true });
+  await initApp("dashboard", "Dashboard", { subtitle, showAddButton: true });
 
   populateExpenseCategorySelect();
   setDefaultDates();

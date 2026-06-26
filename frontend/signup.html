@@ -6,8 +6,6 @@
   <title>Sign Up — Smart Expense Tracker</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="stylesheet" href="css/styles.css" />
-  <script src="js/auth.js"></script>
-  <script src="js/data.js"></script>
 </head>
 <body class="auth-page" data-page="signup">
   <div class="auth-card">
@@ -56,9 +54,12 @@
     </p>
   </div>
 
-  <script>
+  <script type="module">
+    import { requireGuest, handleSignup } from "./js/auth.js";
+    import { applyTheme } from "./js/app.js";
+
     document.addEventListener("DOMContentLoaded", () => {
-      if (typeof applyTheme === "function") applyTheme();
+      applyTheme();
       requireGuest();
       document.getElementById("signup-form").addEventListener("submit", handleSignup);
     });

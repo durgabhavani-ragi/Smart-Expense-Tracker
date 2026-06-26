@@ -2,6 +2,24 @@
  * Analytics page — Chart.js visualizations
  */
 
+import {
+  getTransactions,
+  getCurrentMonthKey,
+  getMonthlyIncome,
+  getMonthlyExpense,
+  getTopCategory,
+  getLastNMonths,
+  getMonthLabel,
+  formatCurrency,
+} from "./data.js";
+import { initApp } from "./app.js";
+import {
+  createCategoryPieChart,
+  createMonthlyBarChart,
+  createIncomeExpenseChart,
+  createWeeklySpendingChart,
+} from "./charts.js";
+
 function updateAnalyticsStats() {
   const transactions = getTransactions();
   const monthKey = getCurrentMonthKey();
@@ -29,8 +47,8 @@ function refreshAnalyticsCharts() {
   createWeeklySpendingChart("chart-weekly", transactions);
 }
 
-function initAnalyticsPage() {
-  initApp("analytics", "Analytics", { subtitle: "Visual insights into your spending patterns" });
+async function initAnalyticsPage() {
+  await initApp("analytics", "Analytics", { subtitle: "Visual insights into your spending patterns" });
   updateAnalyticsStats();
   refreshAnalyticsCharts();
 
@@ -56,7 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// Re-render charts when theme changes
 document.addEventListener("click", (e) => {
   if (e.target.closest("[data-dark-toggle]") && document.body.dataset.page === "analytics") {
     setTimeout(refreshAnalyticsCharts, 100);

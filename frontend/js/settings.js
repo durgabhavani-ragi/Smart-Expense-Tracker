@@ -2,6 +2,9 @@
  * Settings page — theme, currency, notifications
  */
 
+import { getSettings, saveSettings, CURRENCY_OPTIONS } from "./data.js";
+import { initApp, applyTheme, toggleDarkMode, syncDarkModeToggles, updateThemeIcons, showToast } from "./app.js";
+
 function loadSettingsForm() {
   const settings = getSettings();
 
@@ -37,8 +40,8 @@ function saveSettingsFromForm() {
   showToast("Settings saved");
 }
 
-function initSettingsPage() {
-  initApp("settings", "Settings", { subtitle: "Customize your app experience" });
+async function initSettingsPage() {
+  await initApp("settings", "Settings", { subtitle: "Customize your app experience" });
   loadSettingsForm();
 
   document.getElementById("setting-dark-mode")?.addEventListener("change", (e) => {

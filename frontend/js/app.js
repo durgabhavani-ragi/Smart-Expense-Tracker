@@ -2,6 +2,10 @@
  * Smart Expense Tracker — shared layout, theme, navigation
  */
 
+import { requireAuth, handleLogout, getCurrentUser, setCurrentUser } from "./auth.js";
+import { loadTransactions, getSettings, saveSettings, escapeHtml } from "./data.js";
+import { TOKEN_KEY } from "../apis/apiConfig.js";
+
 const NAV_ITEMS = [
   { href: "dashboard.html", icon: "fa-gauge-high", label: "Dashboard", page: "dashboard" },
   { href: "analytics.html", icon: "fa-chart-pie", label: "Analytics", page: "analytics" },
@@ -11,12 +15,12 @@ const NAV_ITEMS = [
   { href: "settings.html", icon: "fa-gear", label: "Settings", page: "settings" },
 ];
 
-function applyTheme() {
+export function applyTheme() {
   const settings = getSettings();
   document.documentElement.setAttribute("data-theme", settings.darkMode ? "dark" : "light");
 }
 
-function toggleDarkMode(force) {
+export function toggleDarkMode(force) {
   const settings = getSettings();
   settings.darkMode = typeof force === "boolean" ? force : !settings.darkMode;
   saveSettings(settings);
@@ -25,7 +29,7 @@ function toggleDarkMode(force) {
   return settings.darkMode;
 }
 
-function syncDarkModeToggles() {
+export function syncDarkModeToggles() {
   const isDark = getSettings().darkMode;
   document.querySelectorAll("[data-dark-toggle]").forEach((el) => {
     if (el.type === "checkbox") el.checked = isDark;
@@ -152,20 +156,19 @@ function initThemeControls() {
   updateThemeIcons();
 }
 
-function updateThemeIcons() {
+export function updateThemeIcons() {
   const isDark = getSettings().darkMode;
   document.querySelectorAll("#theme-toggle-top i, [data-theme-icon]").forEach((icon) => {
     icon.className = isDark ? "fa-solid fa-sun" : "fa-solid fa-moon";
   });
 }
 
-function initUserHeader() {
-  const session = getSession();
+export function initUserHeader() {
   const user = getCurrentUser();
-  const displayName = user?.name || session?.email || "User";
+  const displayName = user?.name || user?.email || "User";
 
   const emailEl = document.getElementById("user-email");
-  if (emailEl) emailEl.textContent = session?.email || "";
+  if (emailEl) emailEl.textContent = user?.email || "";
 
   const nameEl = document.getElementById("sidebar-user-name");
   if (nameEl) nameEl.textContent = displayName;
@@ -176,8 +179,19 @@ function initUserHeader() {
   }
 }
 
-function initApp(activePage, title, options = {}) {
-  requireAuth();
+export async function initApp(activePage, title, options = {}) {
+  const authed = await requireAuth();
+  if (!authed) return;
+
+  try {
+    await loadTransactions();
+  } catch {
+    localStorage.removeItem(TOKEN_KEY);
+    setCurrentUser(null);
+    window.location.href = "login.html";
+    return;
+  }
+
   applyTheme();
   injectAppShell(activePage, title, options);
   initSidebar();
@@ -186,7 +200,7 @@ function initApp(activePage, title, options = {}) {
   document.getElementById("logout-btn")?.addEventListener("click", handleLogout);
 }
 
-function showToast(message, type = "success") {
+export function showToast(message, type = "success") {
   let container = document.getElementById("toast-container");
   if (!container) {
     container = document.createElement("div");
@@ -205,13 +219,13 @@ function showToast(message, type = "success") {
   }, 2800);
 }
 
-function showFormAlert(id, message, type = "error") {
+export function showFormAlert(id, message, type = "error") {
   const el = document.getElementById(id);
   if (!el) return;
   el.innerHTML = `<div class="alert alert-${type}"><i class="fa-solid ${type === "success" ? "fa-circle-check" : "fa-circle-exclamation"}"></i> ${message}</div>`;
 }
 
-function clearFormAlert(id) {
+export function clearFormAlert(id) {
   const el = document.getElementById(id);
   if (el) el.innerHTML = "";
 }

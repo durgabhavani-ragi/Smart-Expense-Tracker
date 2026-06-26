@@ -2,6 +2,9 @@
  * Profile page — user details, avatar, password
  */
 
+import { getCurrentUser, updateCurrentUser } from "./auth.js";
+import { initApp, showFormAlert, clearFormAlert, showToast, initUserHeader } from "./app.js";
+
 function renderProfile() {
   const user = getCurrentUser();
   if (!user) return;
@@ -33,7 +36,7 @@ function handleProfileSave(e) {
   updateCurrentUser({ name, phone });
   initUserHeader();
   showFormAlert("profile-alert", "Profile updated successfully.", "success");
-  showToast("Profile saved");
+  showToast("Profile saved (local session only)");
 }
 
 function handleAvatarChange(e) {
@@ -52,7 +55,7 @@ function handleAvatarChange(e) {
     updateCurrentUser({ avatar: reader.result });
     renderProfile();
     initUserHeader();
-    showToast("Profile picture updated");
+    showToast("Profile picture updated (local session only)");
   };
   reader.readAsDataURL(file);
 }
@@ -61,17 +64,9 @@ function handlePasswordChange(e) {
   e.preventDefault();
   clearFormAlert("password-alert");
 
-  const current = document.getElementById("current-password").value;
   const newPass = document.getElementById("new-password").value;
   const confirm = document.getElementById("confirm-new-password").value;
-  const user = getCurrentUser();
 
-  if (!user) return;
-
-  if (user.password !== current) {
-    showFormAlert("password-alert", "Current password is incorrect.");
-    return;
-  }
   if (newPass.length < 6) {
     showFormAlert("password-alert", "New password must be at least 6 characters.");
     return;
@@ -81,15 +76,18 @@ function handlePasswordChange(e) {
     return;
   }
 
-  updateCurrentUser({ password: newPass });
-  e.target.reset();
-  showFormAlert("password-alert", "Password changed successfully.", "success");
-  showToast("Password updated");
+  showFormAlert("password-alert", "Password changes require backend support and are not available yet.", "error");
 }
 
-function initProfilePage() {
-  initApp("profile", "Profile", { subtitle: "Manage your account details" });
+async function initProfilePage() {
+  await initApp("profile", "Profile", { subtitle: "Manage your account details" });
   renderProfile();
+
+  const user = getCurrentUser();
+  const nameEl = document.getElementById("profile-display-name");
+  const emailEl = document.getElementById("profile-display-email");
+  if (nameEl) nameEl.textContent = user?.name || "User";
+  if (emailEl) emailEl.textContent = user?.email || "";
 
   document.getElementById("profile-form")?.addEventListener("submit", handleProfileSave);
   document.getElementById("password-form")?.addEventListener("submit", handlePasswordChange);

@@ -2,6 +2,16 @@
  * Smart Expense Tracker — Chart.js helpers
  */
 
+import {
+  getCategoryTotals,
+  getLastNMonths,
+  getMonthlyExpense,
+  getMonthlyIncome,
+  getMonthLabel,
+  getWeeklySpending,
+  formatCurrency,
+} from "./data.js";
+
 const CHART_COLORS = [
   "#3b82f6",
   "#10b981",
@@ -31,7 +41,7 @@ function destroyChart(id) {
   }
 }
 
-function destroyAllCharts() {
+export function destroyAllCharts() {
   Object.keys(chartInstances).forEach(destroyChart);
 }
 
@@ -49,7 +59,7 @@ function baseOptions() {
   };
 }
 
-function createCategoryPieChart(canvasId, transactions, monthKey) {
+export function createCategoryPieChart(canvasId, transactions, monthKey) {
   destroyChart(canvasId);
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
@@ -57,7 +67,6 @@ function createCategoryPieChart(canvasId, transactions, monthKey) {
   const totals = getCategoryTotals(transactions, monthKey);
   const labels = Object.keys(totals);
   const data = Object.values(totals);
-  const colors = getChartColors();
 
   if (!labels.length) {
     chartInstances[canvasId] = new Chart(canvas, {
@@ -87,7 +96,7 @@ function createCategoryPieChart(canvasId, transactions, monthKey) {
   });
 }
 
-function createMonthlyBarChart(canvasId, transactions) {
+export function createMonthlyBarChart(canvasId, transactions) {
   destroyChart(canvasId);
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
@@ -123,7 +132,7 @@ function createMonthlyBarChart(canvasId, transactions) {
   });
 }
 
-function createIncomeExpenseChart(canvasId, transactions) {
+export function createIncomeExpenseChart(canvasId, transactions) {
   destroyChart(canvasId);
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
@@ -170,7 +179,7 @@ function createIncomeExpenseChart(canvasId, transactions) {
   });
 }
 
-function createWeeklySpendingChart(canvasId, transactions) {
+export function createWeeklySpendingChart(canvasId, transactions) {
   destroyChart(canvasId);
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
@@ -198,8 +207,4 @@ function createWeeklySpendingChart(canvasId, transactions) {
       },
     },
   });
-}
-
-function refreshAllChartsOnPage(configs) {
-  configs.forEach(({ id, fn, args }) => fn(id, ...args));
 }

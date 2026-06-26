@@ -2,6 +2,19 @@
  * Transactions page — search, filter, sort, edit, delete
  */
 
+import {
+  EXPENSE_CATEGORIES,
+  getTransactions,
+  createExpense,
+  createIncome,
+  deleteTransactionById,
+  upsertTransaction,
+  formatCurrency,
+  formatDate,
+  escapeHtml,
+} from "./data.js";
+import { initApp, showToast } from "./app.js";
+
 let sortField = "date";
 let sortDir = "desc";
 let editingId = null;
@@ -92,11 +105,15 @@ function renderTransactionsTable() {
   });
 }
 
-function deleteTx(id) {
+async function deleteTx(id) {
   if (!confirm("Delete this transaction?")) return;
-  deleteTransactionById(id);
-  renderTransactionsTable();
-  showToast("Transaction deleted");
+  try {
+    await deleteTransactionById(id);
+    renderTransactionsTable();
+    showToast("Transaction deleted");
+  } catch (error) {
+    showToast(error.message || "Failed to delete transaction", "error");
+  }
 }
 
 function openEditModal(id) {
@@ -131,7 +148,7 @@ function populateEditCategories(type, selected) {
   select.value = selected || (type === "income" ? "Income" : EXPENSE_CATEGORIES[0]);
 }
 
-function handleEditSubmit(e) {
+async function handleEditSubmit(e) {
   e.preventDefault();
   if (!editingId) return;
 
@@ -155,10 +172,15 @@ function handleEditSubmit(e) {
     description,
     createdAt: getTransactions().find((t) => t.id === editingId)?.createdAt || Date.now(),
   };
-  upsertTransaction(record);
-  closeEditModal();
-  renderTransactionsTable();
-  showToast("Transaction updated");
+
+  try {
+    await upsertTransaction(record);
+    closeEditModal();
+    renderTransactionsTable();
+    showToast("Transaction updated");
+  } catch (error) {
+    showToast(error.message || "Failed to update transaction", "error");
+  }
 }
 
 function initSortHeaders() {
@@ -177,7 +199,7 @@ function initSortHeaders() {
   });
 }
 
-function handleQuickAdd(e) {
+async function handleQuickAdd(e) {
   e.preventDefault();
   const type = document.getElementById("quick-type").value;
   const amount = parseFloat(document.getElementById("quick-amount").value);
@@ -190,25 +212,28 @@ function handleQuickAdd(e) {
     return;
   }
 
-  const list = getTransactions();
-  list.push({
-    id: generateId(),
-    type,
-    amount,
-    category: type === "income" ? "Income" : category,
-    date,
-    description: description || (type === "income" ? "Income" : category),
-    createdAt: Date.now(),
-  });
-  saveTransactions(list);
-  e.target.reset();
-  document.getElementById("quick-date").value = new Date().toISOString().split("T")[0];
-  renderTransactionsTable();
-  showToast("Transaction added");
+  try {
+    if (type === "income") {
+      await createIncome({ amount, date, description: description || "Income" });
+    } else {
+      await createExpense({
+        amount,
+        category,
+        date,
+        description: description || category,
+      });
+    }
+    e.target.reset();
+    document.getElementById("quick-date").value = new Date().toISOString().split("T")[0];
+    renderTransactionsTable();
+    showToast("Transaction added");
+  } catch (error) {
+    showToast(error.message || "Failed to add transaction", "error");
+  }
 }
 
-function initTransactionsPage() {
-  initApp("transactions", "Transactions", { subtitle: "Search, filter, and manage all entries" });
+async function initTransactionsPage() {
+  await initApp("transactions", "Transactions", { subtitle: "Search, filter, and manage all entries" });
 
   populateFilters();
   document.getElementById("quick-date").value = new Date().toISOString().split("T")[0];
