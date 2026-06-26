@@ -2,7 +2,7 @@
  * Shared API configuration and auth headers helper.
  */
 
-export const BASE_URL = "http://localhost:5000/api";
+export const BASE_URL = "https://smart-expense-tracker-backend-wtp6.onrender.com/api";
 
 /** localStorage key for JWT after login */
 export const TOKEN_KEY = "token";
